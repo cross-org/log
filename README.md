@@ -1,4 +1,4 @@
-**@cross/log - Generic logger for Node.js, Deno, and Bun**
+**@cross/log - Flexible cross-runtime logging for Node.js, Deno, and Bun**
 
 ## Installation
 
@@ -7,14 +7,9 @@ Instructions are available at
 version:
 
 ```bash
-# Deno
-deno add @cross/log
-
-# Node.js
-npx jsr add @cross/log
-
-# Bun
-bunx jsr add @cross/log
+deno add @cross/log     # Deno
+npx jsr add @cross/log  # Node.js
+bunx jsr add @cross/log # Bun
 ```
 
 ## Getting Started
@@ -38,7 +33,7 @@ logger.info("Hello log!");
 - **Cross-Runtime Compatibility** Works seamlessly across Node.js, Deno, and Bun
   environments.
 - **Modular Transports:** Easily create custom transports to send logs to
-  databases, network services, or specialized systems.
+  console, file or cloud services like Splunk HEC or New Relic.
 - **Global and Transport Filtering:** Set log levels globally or configure
   fine-grained filtering per transport.
 
@@ -102,11 +97,57 @@ try {
 }
 ```
 
+#### New Relic transport
+
+**Configuration**
+
+The `NewRelicLogger` transport requires the following options:
+
+- **`apiKey`:** Your New Relic license key or API key.
+- **`region`:** (Optional) The New Relic region where your account is located.
+  Valid values are "US", "EU", and "FedRamp". Defaults to "US".
+- **`serviceAttribute`:** (Optional) A common attribute name to identify the
+  service generating the logs.
+- **`logtypeAttribute`:** (Optional) A common attribute name to categorize your
+  log entries.
+- **`hostnameAttribute`:** (Optional) A common attribute name to indicate the
+  host where the logs originated.
+
+**Example**
+
+```javascript
+import { Log, NewRelicLogger } from "@cross/log";
+
+const logger = new Log([
+  // ... other transports (ConsoleLogger, FileLogger, etc.)
+
+  new NewRelicLogger({
+    apiKey: "your-new-relic-api-key",
+    region: "EU",
+    serviceAttribute: "my-awesome-app",
+    logtypeAttribute: "application-logs",
+    hostnameAttribute: "production-server-1",
+  }),
+]);
+
+logger.warn("User successfully logged in");
+```
+
+**Important Notes**
+
+- **Obtain your API Key:** You can find your New Relic license key or API key
+  within your New Relic account settings.
+- **Custom Attributes:** The `serviceAttribute`, `logtypeAttribute` and
+  `hostnameAttribute` help you organize and filter your logs within New Relic.
+- **Error Handling:** Consider robust error handling for your New Relic
+  transport (e.g., storing logs temporarily in a file if the New Relic API is
+  unavailable).
+
 #### Creating a custom transport
 
 ```ts
-import { Log, LogTransportBase, LogTransportBaseOptions } from "./mod.ts";
-import { Severity } from "./mod.ts";
+import { Log, LogTransportBase, LogTransportBaseOptions } from "@cross/log";
+import { Severity } from "@cross/log";
 
 /**
  * Create your own Transport by extending LogTransportBase

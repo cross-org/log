@@ -9,6 +9,8 @@ export { Severity } from "./src/types.ts";
  */
 export { ConsoleLogger } from "./transports/console.ts";
 export { FileLogger } from "./transports/file.ts";
+export { SplunkHecLogger } from "./transports/splunk.ts";
+export { NewRelicLogger } from "./transports/newrelic.ts";
 
 /**
  * Re-export of transport classes
