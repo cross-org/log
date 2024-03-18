@@ -1,0 +1,11 @@
+{
+  "name": "@cross/log",
+  "version": "0.9.0",
+  "exports": {
+    ".": "./mod.ts"
+  },
+  "imports": {
+    "@cross/deepmerge": "jsr:@cross/deepmerge@^0.2.1",
+    "@cross/utils": "jsr:@cross/utils@^0.6.1"
+  }
+}
