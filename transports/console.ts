@@ -1,13 +1,8 @@
 // deno-lint-ignore-file
 import { Colors } from "@cross/utils";
 import { deepMerge } from "@cross/deepmerge";
-import {
-  LogTransportBase,
-  LogTransportBaseOptions,
-} from "../src/transport.ts";
-import {
-  Severity,
-} from "../src/types.ts";
+import { LogTransportBase, LogTransportBaseOptions } from "../src/transport.ts";
+import { Severity } from "../src/types.ts";
 
 interface ConsoleLoggerOptions extends LogTransportBaseOptions {
   minimumSeverity?: Severity;

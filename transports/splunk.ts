@@ -3,9 +3,7 @@ import {
   LogTransportBase,
   LogTransportBaseOptions,
 } from "../src/transport.ts";
-import {
-  Severity,
-} from "../src/types.ts";
+import { Severity } from "../src/types.ts";
 import { deepMerge } from "@cross/deepmerge";
 
 interface SplunkHecClientOptions extends LogTransportBaseOptions {
