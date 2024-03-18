@@ -1,4 +1,4 @@
-import { NumericSeverity, Severity } from "./types.ts";
+import { NumericSeverity, Severity } from "../src/types.ts";
 
 export interface LogTransportBaseOptions {
   /**

@@ -102,6 +102,43 @@ try {
 }
 ```
 
+#### Creating a custom transport
+
+```ts
+import { Log, LogTransportBase, LogTransportBaseOptions } from "./mod.ts";
+import { Severity } from "./mod.ts";
+
+/**
+ * Create your own Transport by extending LogTransportBase
+ */
+export class CustomLogger extends LogTransportBase {
+  options: LogTransportBaseOptions;
+  constructor(options?: LogTransportBaseOptions) {
+    super();
+    this.options = { ...this.defaults, ...options };
+  }
+  log(level: Severity, scope: string, data: unknown[], timestamp: Date) {
+    if (this.shouldLog(level)) {
+      // Custom implementation below
+      const formattedMessage = `${timestamp.toISOString()} ${level} ${scope} ${
+        data.join(" ")
+      }`;
+      if (level === Severity.Error) {
+        console.error(formattedMessage);
+      } else {
+        console.log(formattedMessage);
+      }
+    }
+  }
+}
+
+// Create a new logger, using our custom logger
+const logger = new Log([new CustomLogger()]);
+
+// Log a message
+logger.warn("This is a warning");
+```
+
 **Contributions and Feedback**
 
 We welcome your contributions to improve `@cross/log`! Submit issues, feature

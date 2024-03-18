@@ -1,7 +1,7 @@
 // deno-lint-ignore-file
 import { Colors } from "@cross/utils";
 import { deepMerge } from "@cross/deepmerge";
-import { LogTransportBase, LogTransportBaseOptions } from "../src/transport.ts";
+import { LogTransportBase, LogTransportBaseOptions } from "./base.ts";
 import { Severity } from "../src/types.ts";
 
 interface ConsoleLoggerOptions extends LogTransportBaseOptions {
@@ -40,7 +40,8 @@ export class ConsoleLogger extends LogTransportBase {
       const timestampText = Colors.dim(timestamp.toISOString());
 
       let styledLevel = level.toString().padEnd(5, " ");
-      let message = this.formatMessage(data, scope); // Construct message
+
+      let message = `${scope}: ${data.join(" ")}`;
 
       switch (level) {
         case Severity.Debug:
@@ -67,15 +68,5 @@ export class ConsoleLogger extends LogTransportBase {
         console.log(formattedMessage);
       }
     }
-  }
-
-  /**
-   * Helper to format the log message.
-   * @param data - Array of data to be logged.
-   * @param scope - Optional scope or category of the message.
-   * @returns The formatted log message string.
-   */
-  private formatMessage(data: unknown[], scope: string): string {
-    return `${scope}: ${data.join(" ")}`;
   }
 }

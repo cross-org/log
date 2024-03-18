@@ -1,5 +1,5 @@
 import { ConsoleLogger } from "../transports/console.ts";
-import { LogTransport } from "./transport.ts";
+import { LogTransport } from "../transports/base.ts";
 import { Severity } from "./types.ts";
 
 /**

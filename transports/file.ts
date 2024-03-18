@@ -3,9 +3,8 @@ import {
   LogTransport,
   LogTransportBase,
   LogTransportBaseOptions,
-} from "../src/transport.ts";
+} from "./base.ts";
 import { Severity } from "../src/types.ts";
-
 import { deepMerge } from "@cross/deepmerge";
 
 interface FileLoggerOptions extends LogTransportBaseOptions {
