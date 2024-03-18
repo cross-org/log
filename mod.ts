@@ -2,9 +2,9 @@ import { appendFile } from "node:fs/promises";
 import { Colors } from "@cross/utils";
 import { deepMerge } from "@cross/deepmerge";
 
-type LoggerFileFormat = "txt" | "json";
+export type LoggerFileFormat = "txt" | "json";
 
-interface LoggerOptions {
+export interface LoggerOptions {
   file?: {
     enabled: boolean;
     stdoutPath?: string;
@@ -17,7 +17,7 @@ interface LoggerOptions {
   logLevel?: LogLevel;
 }
 
-enum LogLevel {
+export enum LogLevel {
   Debug = "DEBUG",
   Info = "INFO",
   Log = "LOG",
