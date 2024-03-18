@@ -1,22 +1,15 @@
-import { appendFile } from "node:fs/promises";
-import { Colors } from "@cross/utils";
-import { deepMerge } from "@cross/deepmerge";
+import { ConsoleLogger } from "./transports/console.ts";
 
-export type LoggerFileFormat = "txt" | "json";
-
-export interface LoggerOptions {
-  file?: {
-    enabled: boolean;
-    stdoutPath?: string;
-    stderrPath?: string;
-    format?: LoggerFileFormat;
-  };
-  console?: {
-    enabled: boolean;
-  };
+/**
+ * Base options for Log Transports.
+ */
+export interface LogTransportBaseOptions {
   logLevel?: LogLevel;
 }
 
+/**
+ * Enumeration of available log levels.
+ */
 export enum LogLevel {
   Debug = "DEBUG",
   Info = "INFO",
@@ -25,7 +18,30 @@ export enum LogLevel {
   Error = "ERROR",
 }
 
-const numericLogLevel = new Map([
+/**
+ * Interface for defining the core functionality of a Log Transport.
+ */
+export interface LogTransport {
+  /**
+   * Logs a message with the specified severity, scope, data, and timestamp.
+   *
+   * @param severity - The severity level of the message.
+   * @param scope - An optional scope to categorize or group the log message.
+   * @param data - An array of data to be logged.
+   * @param timestamp - The timestamp of the log entry.
+   */
+  log(
+    severity: LogLevel,
+    scope: string,
+    data: unknown[],
+    timestamp: Date,
+  ): void;
+}
+
+/**
+ * Map for convenient comparison of log levels by numeric value.
+ */
+export const NumericLogLevel: Map<string, number> = new Map([
   ["DEBUG", 100],
   ["INFO", 200],
   ["LOG", 300],
@@ -33,124 +49,87 @@ const numericLogLevel = new Map([
   ["ERROR", 500],
 ]);
 
+/**
+ * Main Log class for managing and dispatching log messages to transports.
+ */
 export class Log {
-  private options: LoggerOptions;
+  /**
+   * Array of LogTransport objects responsible for handling log messages.
+   */
+  transports: LogTransport[] = [];
 
-  constructor(options?: LoggerOptions) {
-    const defaults: LoggerOptions = {
-      file: {
-        enabled: false,
-        stdoutPath: "./app.log",
-        stderrPath: "./app.log",
-        format: "txt",
-      },
-      console: { enabled: true },
-      logLevel: LogLevel.Info,
-    };
-    this.options = deepMerge(defaults, options)!;
-  }
-
-  debug(message: string) {
-    this.doLog(LogLevel.Debug, message);
-  }
-
-  info(message: string) {
-    this.doLog(LogLevel.Info, message);
-  }
-
-  log(message: string) {
-    this.doLog(LogLevel.Log, message);
-  }
-
-  warn(message: string) {
-    this.doLog(LogLevel.Warn, message);
-  }
-
-  error(message: string) {
-    this.doLog(LogLevel.Error, message);
-  }
-
-  private doLog(level: LogLevel, message: string) {
-    if (this.shouldLog(level)) { // Introduce filtering check
-      const timestamp = new Date();
-      if (this.options.file?.enabled) {
-        if (this.options.file?.stderrPath && level === LogLevel.Error) {
-          this.appendToFile(timestamp, level, message, true);
-        } else if (this.options.file?.stdoutPath) {
-          this.appendToFile(timestamp, level, message, false);
-        }
-      }
-      if (this.options.console?.enabled) {
-        this.writeToConsole(timestamp, message, level);
-      }
-    }
-  }
-
-  private appendToFile(
-    timestamp: Date,
-    level: LogLevel,
-    message: string,
-    stderr: boolean,
-  ) {
-    const timestampText = timestamp.toISOString();
-    const formattedMessage = this.formatFileMessage(
-      timestampText,
-      level,
-      message,
-    );
-    const filePath = stderr
-      ? this.options.file!.stderrPath
-      : this.options.file!.stdoutPath;
-    appendFile(filePath as string, formattedMessage)
-      .catch((err) => console.error(`Error writing to log file:`, err));
-  }
-
-  private formatFileMessage(
-    timestamp: string,
-    level: LogLevel,
-    message: string,
-  ): string {
-    switch (this.options.file?.format) {
-      case "json":
-        return JSON.stringify({ timestamp, level, message }) + "\n";
-      default:
-        return `[${timestamp}] [${level}] ${message}\n`; // Default remains the same
-    }
-  }
-
-  private writeToConsole(timestamp: Date, message: string, level: LogLevel) {
-    const timestampText = Colors.dim(timestamp.toISOString());
-
-    let styledLevel = level.toString().padEnd(5, " ");
-
-    switch (level) {
-      case LogLevel.Debug:
-        styledLevel = Colors.dim(styledLevel);
-        message = Colors.dim(message);
-        break;
-      case LogLevel.Info:
-        styledLevel = Colors.blue(styledLevel);
-        break;
-      case LogLevel.Warn:
-        styledLevel = Colors.yellow(styledLevel);
-        break;
-      case LogLevel.Error:
-        styledLevel = Colors.red(styledLevel);
-        message = Colors.red(message);
-        break;
-    }
-
-    const formattedMessage = `${timestampText} ${styledLevel} ${message}`;
-
-    if (level === LogLevel.Error) {
-      console.error(formattedMessage);
+  constructor(transports?: LogTransport[]) {
+    if (!transports) {
+      this.transports.push(new ConsoleLogger()); // Default
     } else {
-      console.log(formattedMessage);
+      this.transports = transports;
     }
   }
 
-  private shouldLog(level: LogLevel): boolean {
-    const currentLogLevel = this.options.logLevel ?? LogLevel.Debug;
-    return numericLogLevel.get(level)! >= numericLogLevel.get(currentLogLevel)!;
+  /**
+   * Logs a message with Debug severity.
+   * @param data - Data to be logged.
+   */
+  debug(...data: unknown[]) {
+    this.forward(LogLevel.Debug, "default", data);
+  }
+
+  /**
+   * Logs a message with Info severity.
+   * @param data - Data to be logged.
+   */
+  info(...data: unknown[]) {
+    this.forward(LogLevel.Info, "default", data);
+  }
+
+  /**
+   * Logs a message with Log severity.
+   * @param data - Data to be logged.
+   */
+  log(...data: unknown[]) {
+    this.forward(LogLevel.Log, "default", data);
+  }
+
+  /**
+   * Logs a message with Warn severity.
+   * @param data - Data to be logged.
+   */
+  warn(...data: unknown[]) {
+    this.forward(LogLevel.Warn, "default", data);
+  }
+
+  /**
+   * Logs a message with Error severity.
+   * @param data - Data to be logged.
+   */
+  error(...data: unknown[]) {
+    this.forward(LogLevel.Error, "default", data);
+  }
+
+  /**
+   * Forwards the log message to all registered transports.
+   * @param severity - The severity of the message.
+   * @param scope - The scope of the message.
+   * @param data - Data to be logged.
+   */
+  private forward(severity: LogLevel, scope: string, data: unknown[]) {
+    const timestamp = new Date();
+    this.transports.forEach((transport) => {
+      transport.log(severity, scope, data, timestamp);
+    });
   }
 }
+
+/**
+ * Re-export of common transports
+ *
+ * All transports is available by using
+ *
+ * ```
+ * import { FileLogger } from "@cross/log/file";
+ * import { ConsoleLogger } from "@cross/log/console";
+ * // ... etc
+ * ```
+ */
+export { ConsoleLogger } from "./transports/console.ts";
+export { FileLogger } from "./transports/file.ts";

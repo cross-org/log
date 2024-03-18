@@ -1,8 +1,10 @@
 {
   "name": "@cross/log",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "exports": {
-    ".": "./mod.ts"
+    ".": "./mod.ts",
+    "./console": "./transports/console.ts",
+    "./file": "./transports/file.ts"
   },
   "imports": {
     "@cross/deepmerge": "jsr:@cross/deepmerge@^0.2.1",
