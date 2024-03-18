@@ -5,7 +5,8 @@
     ".": "./mod.ts",
     "./console": "./transports/console.ts",
     "./file": "./transports/file.ts",
-    "./splunk": "./transports/splunk.ts"
+    "./splunk": "./transports/splunk.ts",
+    "./newrelic": "./transports/newrelic.ts"
   },
   "imports": {
     "@cross/deepmerge": "jsr:@cross/deepmerge@^0.2.1",
