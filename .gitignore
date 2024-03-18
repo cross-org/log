@@ -140,4 +140,4 @@ package.json
 # Bun
 bunfig.toml
 
-test.ts
+local.ts
