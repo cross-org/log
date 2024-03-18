@@ -31,7 +31,7 @@ logger.info("Hello log!");
 
 **Key Features**
 
-- **Flexible Log Levels:** Use standard log levels (Debug, Info, Warn, Error)
+- **Flexible Log Levels:** Use standard severities (Debug, Info, Warn, Error)
   for easy categorization.
 - **Customizable Output:** Choose between plain text and JSON formatting for
   both console and file logging.
@@ -56,15 +56,18 @@ logger.info("Hello log!");
 **Example Usage (with Custom Transports)**
 
 ```javascript
-import { ConsoleLogger, FileLogger, Log, LogLevel } from "./mod.ts";
+import { ConsoleLogger, FileLogger, Log, Severity } from "./mod.ts";
 
 const myLogger = new Log([
   new ConsoleLogger({
-    logLevel: LogLevel.Debug, // Include debug in console output
+    // Only write severity Info and higher to console
+    minimumSeverity: Severity.Info
+    // Also possible to select individual severities
+    // severities: [Severity.Info, Severity.Error]
   }),
   new FileLogger({
     filePath: "./app.log",
-    fileFormat: "txt",
+    fileFormat: "txt"
   }),
 ]);
 

@@ -4,7 +4,8 @@
   "exports": {
     ".": "./mod.ts",
     "./console": "./transports/console.ts",
-    "./file": "./transports/file.ts"
+    "./file": "./transports/file.ts",
+    "./splunk": "./transports/splunk.ts"
   },
   "imports": {
     "@cross/deepmerge": "jsr:@cross/deepmerge@^0.2.1",

@@ -1,30 +1,35 @@
+// deno-lint-ignore-file
 import { Colors } from "@cross/utils";
 import { deepMerge } from "@cross/deepmerge";
 import {
-  LogLevel,
-  LogTransport,
+  LogTransportBase,
   LogTransportBaseOptions,
-  NumericLogLevel,
-} from "../mod.ts";
+} from "../src/transport.ts";
+import {
+  Severity,
+} from "../src/types.ts";
 
 interface ConsoleLoggerOptions extends LogTransportBaseOptions {
-  /**
-   *  The minimum log level to be handled by this transport. Defaults to LogLevel.Info
-   */
-  logLevel?: LogLevel;
+  minimumSeverity?: Severity;
+  severities?: Severity[];
 }
 
-export class ConsoleLogger implements LogTransport {
-  private options: ConsoleLoggerOptions;
+export class ConsoleLogger extends LogTransportBase {
+  options: ConsoleLoggerOptions;
 
   /**
    * Constructs a ConsoleLogger instance.
    * @param options - Optional configuration for the logger.
    */
   constructor(options?: ConsoleLoggerOptions) {
-    this.options = deepMerge({
-      logLevel: LogLevel.Info,
-    }, options || {})!;
+    super();
+    this.options = deepMerge(
+      this.defaults as ConsoleLoggerOptions,
+      {
+        /* FileLogger specific defaults */
+      },
+      options,
+    )!;
   }
 
   /**
@@ -35,7 +40,7 @@ export class ConsoleLogger implements LogTransport {
    * @param data - Array of data to be logged.
    * @param timestamp - Timestamp for the log entry.
    */
-  log(level: LogLevel, scope: string, data: unknown[], timestamp: Date) {
+  log(level: Severity, scope: string, data: unknown[], timestamp: Date) {
     if (this.shouldLog(level)) {
       const timestampText = Colors.dim(timestamp.toISOString());
 
@@ -43,17 +48,17 @@ export class ConsoleLogger implements LogTransport {
       let message = this.formatMessage(data, scope); // Construct message
 
       switch (level) {
-        case LogLevel.Debug:
+        case Severity.Debug:
           styledLevel = Colors.dim(styledLevel);
           message = Colors.dim(message);
           break;
-        case LogLevel.Info:
+        case Severity.Info:
           styledLevel = Colors.blue(styledLevel);
           break;
-        case LogLevel.Warn:
+        case Severity.Warn:
           styledLevel = Colors.yellow(styledLevel);
           break;
-        case LogLevel.Error:
+        case Severity.Error:
           styledLevel = Colors.red(styledLevel);
           message = Colors.red(message);
           break;
@@ -61,7 +66,7 @@ export class ConsoleLogger implements LogTransport {
 
       const formattedMessage = `${timestampText} ${styledLevel} ${message}`;
 
-      if (level === LogLevel.Error) {
+      if (level === Severity.Error) {
         console.error(formattedMessage);
       } else {
         console.log(formattedMessage);
@@ -77,15 +82,5 @@ export class ConsoleLogger implements LogTransport {
    */
   private formatMessage(data: unknown[], scope: string): string {
     return `${scope}: ${data.join(" ")}`;
-  }
-
-  /**
-   * Determines if the message should be logged based on its severity and the configured log level.
-   * @param level - The severity level of the message.
-   * @returns True if the message should be logged, false otherwise.
-   */
-  private shouldLog(level: LogLevel): boolean {
-    const currentLogLevel = this.options.logLevel ?? LogLevel.Debug;
-    return NumericLogLevel.get(level)! >= NumericLogLevel.get(currentLogLevel)!;
   }
 }
