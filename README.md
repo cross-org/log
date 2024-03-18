@@ -5,8 +5,8 @@
 **Installation**
 
 Instructions are available at
-[https://jsr.io/@cross/log](https://jsr.io/@cross/log) (adjust as needed).
-Here's the quick version:
+[https://jsr.io/@cross/log](https://jsr.io/@cross/log). Here's the quick
+version:
 
 ```bash
 # Deno
