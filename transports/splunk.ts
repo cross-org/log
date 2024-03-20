@@ -28,7 +28,8 @@ export class SplunkHecLogger extends LogTransportBase implements LogTransport {
   }
   log(level: Severity, scope: string, data: unknown[], timestamp: Date) {
     if (this.shouldLog(level)) {
-      const event = this.formatEvent(level, scope, data, timestamp);
+      const serializedData = this.serializeToText(data);
+      const event = this.formatEvent(level, scope, serializedData, timestamp);
       this.sendToHec(event);
     }
   }

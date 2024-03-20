@@ -56,6 +56,51 @@ export abstract class LogTransportBase implements LogTransport {
   ): void;
 
   /**
+   * Serializes an unknown value into a text representation.
+   *
+   * @param value - The value to serialize.
+   * @returns A text representation of the value.
+   */
+  protected serializeToText(data: unknown[]): string[] {
+    return data.map((item) => {
+      if (item instanceof Map) {
+        return this.serializeMap(item);
+      } else if (item instanceof Set) {
+        return this.serializeSet(item);
+      } else if (typeof item === "object") {
+        return JSON.stringify(item); // Pretty-print other objects
+      } else {
+        return item !== undefined ? item.toString() : "undefined";
+      }
+    });
+  }
+  /**
+   * Serializes a Map into a readable text representation.
+   *
+   * @param map - The Map to serialize.
+   * @returns A text representation of the Map.
+   */
+  private serializeMap(map: Map<unknown, unknown>): string {
+    const entries = Array.from(map.entries()).map(([key, value]) =>
+      `${this.serializeToText([key])} => ${this.serializeToText([value])}`
+    );
+    return `Map:{ ${entries.join(", ")} }`;
+  }
+
+  /**
+   * Serializes a Set into a readable text representation.
+   *
+   * @param set - The Set to serialize.
+   * @returns A text representation of the Set.
+   */
+  private serializeSet(set: Set<unknown>): string {
+    const items = Array.from(set.values()).map((v) =>
+      this.serializeToText([v])
+    );
+    return `Set:{ ${items.join(", ")} }`;
+  }
+
+  /**
    * Determines if the message should be logged based on its severity and the configured log level.
    * @param level - The severity level of the message.
    * @returns True if the message should be logged, false otherwise.

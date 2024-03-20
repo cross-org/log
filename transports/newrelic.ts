@@ -27,7 +27,13 @@ export class NewRelicLogger extends LogTransportBase implements LogTransport {
 
   log(severity: Severity, scope: string, data: unknown[], timestamp: Date) {
     if (this.shouldLog(severity)) {
-      const event = this.formatEvent(severity, scope, data, timestamp);
+      const serializedData = this.serializeToText(data);
+      const event = this.formatEvent(
+        severity,
+        scope,
+        serializedData,
+        timestamp,
+      );
       this.sendToNewRelic(event);
     }
   }

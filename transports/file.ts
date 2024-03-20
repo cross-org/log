@@ -51,7 +51,13 @@ export class FileLogger extends LogTransportBase implements LogTransport {
    */
   log(level: Severity, scope: string, data: unknown[], timestamp: Date) {
     if (this.shouldLog(level)) {
-      const message = this.formatMessage(level, scope, data, timestamp);
+      const serializedData = this.serializeToText(data);
+      const message = this.formatMessage(
+        level,
+        scope,
+        serializedData,
+        timestamp,
+      );
       appendFile(this.options.filePath!, message)
         .catch((err) => console.error(`Error writing to log file:`, err));
     }

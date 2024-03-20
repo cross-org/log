@@ -41,7 +41,10 @@ export class ConsoleLogger extends LogTransportBase {
 
       let styledLevel = level.toString().padEnd(5, " ");
 
-      let message = `${scope}: ${data.join(" ")}`;
+      // Serialize objects in the data array
+      const serializedData = this.serializeToText(data);
+
+      let message = `${scope}: ${serializedData.join(" ")}`;
 
       switch (level) {
         case Severity.Debug:
