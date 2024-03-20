@@ -11,6 +11,10 @@ export class Log {
    */
   transports: LogTransport[] = [];
 
+  /**
+   * Constructs a new Log instansce
+   * @param transports - An array of transports, defaults to [new ConsoleLogger()]
+   */
   constructor(transports?: LogTransport[]) {
     if (!transports) {
       this.transports.push(new ConsoleLogger()); // Default

@@ -7,7 +7,7 @@ import {
 import { Severity } from "../src/types.ts";
 import { deepMerge } from "@cross/deepmerge";
 
-interface FileLoggerOptions extends LogTransportBaseOptions {
+export interface FileLoggerOptions extends LogTransportBaseOptions {
   minimumSeverity?: Severity;
   severities?: Severity[];
 
@@ -21,7 +21,13 @@ interface FileLoggerOptions extends LogTransportBaseOptions {
   fileFormat?: "json" | "txt";
 }
 
+/**
+ * File Logger Transport. Supports logging to files using txt or json format.
+ */
 export class FileLogger extends LogTransportBase implements LogTransport {
+  /**
+   * Options for the file logger transport
+   */
   options: FileLoggerOptions;
 
   /**
@@ -41,6 +47,7 @@ export class FileLogger extends LogTransportBase implements LogTransport {
       options,
     )!;
   }
+
   /**
    * Logs a message to the configured file if the severity is at or above the transport's log level.
    *

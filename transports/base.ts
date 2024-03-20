@@ -1,13 +1,20 @@
 import { NumericSeverity, Severity } from "../src/types.ts";
 
+/**
+ * Base configuration options for a LogTransport instance.
+ */
 export interface LogTransportBaseOptions {
   /**
-   * Minimum severity to be logged, can be overridden with severities
+   * The minimum severity level for a message to be logged. If a message's severity
+   * is lower than this value, it will be ignored. This option is overridden if
+   * the `severities` option is provided.
    */
   minimumSeverity?: Severity;
 
   /**
-   * Takes precedence over minimumSeverity
+   * An array of specific severity levels to log. Messages with severity levels
+   * not included in this array will be ignored. This option takes precedence over
+   * `minimumSeverity`.
    */
   severities?: Severity[];
 }
@@ -33,10 +40,18 @@ export interface LogTransport {
 }
 
 /**
- * Base class for Log Transports.
+ * Base class for Log Transports. Provides core logging functionality and
+ * configuration management. Extend this to build custom transports.
  */
 export abstract class LogTransportBase implements LogTransport {
+  /** Options to be used, will be initialized with defaults */
   protected options: LogTransportBaseOptions;
+
+  /**
+   * Default configuration options for LogTransportBase. Intended for typical
+   * logging scenarios where all messages with 'Info' severity or higher should
+   * be recorded.
+   */
   protected defaults: LogTransportBaseOptions;
   constructor() {
     this.defaults = {

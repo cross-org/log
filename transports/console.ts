@@ -4,13 +4,35 @@ import { deepMerge } from "@cross/deepmerge";
 import { LogTransportBase, LogTransportBaseOptions } from "./base.ts";
 import { Severity } from "../src/types.ts";
 
-interface ConsoleLoggerOptions extends LogTransportBaseOptions {
+/**
+ * Configuration options for the ConsoleLogger transport. Extends the
+ * base logging options for all log transports.
+ */
+export interface ConsoleLoggerOptions extends LogTransportBaseOptions {
+  /**
+   * The minimum severity level for a message to be logged to the console.
+   * If a message's severity is lower than this value, it will not be displayed.
+   * This option is overridden if the `severities` option is provided.
+   */
   minimumSeverity?: Severity;
+
+  /**
+   * An array of specific severity levels to log to the console. Messages
+   * with severity levels not included in this array will be ignored. This
+   * option takes precedence over `minimumSeverity`.
+   */
   severities?: Severity[];
 }
 
+/**
+ * A Log Transport implementation that sends log events to the browser's console
+ * or Node.js console output, providing basic styling and severity-based formatting.
+ */
 export class ConsoleLogger extends LogTransportBase {
-  options: ConsoleLoggerOptions;
+  /**
+   * Options for the ConsoleLogger transport
+   */
+  public options: ConsoleLoggerOptions;
 
   /**
    * Constructs a ConsoleLogger instance.

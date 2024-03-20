@@ -6,16 +6,44 @@ import {
 import { Severity } from "../src/types.ts";
 import { deepMerge } from "@cross/deepmerge";
 
-interface SplunkHecClientOptions extends LogTransportBaseOptions {
+/**
+ * Configuration options for the Splunk HEC (HTTP Event Collector) logger.
+ * Extends the base LogTransportBaseOptions.
+ */
+export interface SplunkHecClientOptions extends LogTransportBaseOptions {
   minimumSeverity?: Severity;
   severities?: Severity[];
+
+  /**
+   * The HTTP Event Collector endpoint for your Splunk instance.
+   */
   hecEndpoint?: string;
+
+  /**
+   * The authorization token for sending events to Splunk HEC.
+   */
   hecToken?: string;
+
+  /**
+   * The source type to be associated with the log events in Splunk.
+   */
   sourceType?: string;
 }
 
+/**
+ *  A Log Transport implementation that sends log events to Splunk's HTTP Event Collector (HEC).
+ */
 export class SplunkHecLogger extends LogTransportBase implements LogTransport {
-  options: SplunkHecClientOptions;
+  /**
+   * Options for the Splunk HEC Transport
+   */
+  public options: SplunkHecClientOptions;
+
+  /**
+   * Creates a new SplunkHecLogger instance.
+   *
+   * @param options - Configuration options for the Splunk HEC logger.
+   */
   constructor(options: SplunkHecClientOptions) {
     super();
     this.options = deepMerge(
@@ -26,6 +54,15 @@ export class SplunkHecLogger extends LogTransportBase implements LogTransport {
       options,
     )!;
   }
+
+  /**
+   * Logs a message to Splunk HEC. Used as an entrypoint for each log into this transport.
+   *
+   * @param severity - The severity level of the message.
+   * @param scope - An optional scope to categorize or group the log message.
+   * @param data - An array of data to be logged.
+   * @param timestamp - The timestamp of the log entry.
+   */
   log(level: Severity, scope: string, data: unknown[], timestamp: Date) {
     if (this.shouldLog(level)) {
       const serializedData = this.serializeToText(data);
@@ -34,6 +71,9 @@ export class SplunkHecLogger extends LogTransportBase implements LogTransport {
     }
   }
 
+  /**
+   * Transforms this event into a format suitable for Splunk HEC
+   */
   private formatEvent(
     level: Severity,
     scope: string,
@@ -51,6 +91,11 @@ export class SplunkHecLogger extends LogTransportBase implements LogTransport {
     };
   }
 
+  /**
+   * Sends a log event to Splunk's HTTP Event Collector. Handles potential errors.
+   *
+   * @param event - The formatted log event object.
+   */
   private async sendToHec(event: object) {
     if (this.options.hecEndpoint && this.options.hecToken) {
       try {
