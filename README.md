@@ -1,5 +1,7 @@
 **@cross/log - Flexible cross-runtime logging for Node.js, Deno, and Bun**
 
+Part of the @cross suite - check out our growing collection of cross-runtime tools at [github.com/cross-org](https://github.com/cross-org).
+
 ## Installation
 
 Instructions are available at
